@@ -435,7 +435,7 @@ void prepareLabels() {
     ReleaseDC(hMainWnd, hdc);
     RectF box;
     PointF origin(0, 0);
-    gCanvas->MeasureString(L"\u263b - KeyCastOW OFF", 16, fontPlus, origin, &box);
+    gCanvas->MeasureString(L"\u263b - KeyCastOW 关", 16, fontPlus, origin, &box);
     REAL unitH = box.Height+2*labelSettings.borderSize+labelSpacing;
     labelCount = (desktopRect.bottom - desktopRect.top) / (int)unitH;
     REAL paddingH = (desktopRect.bottom - desktopRect.top) - unitH*labelCount;
@@ -655,7 +655,7 @@ void loadSettings() {
     }
     tcModifiers = GetPrivateProfileInt(L"KeyCastOW", L"tcModifiers", MOD_ALT, iniFile);
     tcKey = GetPrivateProfileInt(L"KeyCastOW", L"tcKey", 0x42, iniFile);
-    GetPrivateProfileString(L"KeyCastOW", L"branding", L"Hi there, press any key to try, double click to configure.", branding, BRANDINGMAX, iniFile);
+    GetPrivateProfileString(L"KeyCastOW", L"branding", L"您好 按任意键试试 双击配置", branding, BRANDINGMAX, iniFile);
     GetPrivateProfileString(L"KeyCastOW", L"comboChars", L"<->", comboChars, 4, iniFile);
     memset(&labelSettings.font, 0, sizeof(labelSettings.font));
     labelSettings.font.lfCharSet = DEFAULT_CHARSET;
@@ -806,10 +806,10 @@ BOOL CALLBACK SettingsWndProc(HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lPar
                         desktopRect.right - desktopRect.left - settingsDlgRect.right + settingsDlgRect.left,
                         desktopRect.bottom - desktopRect.top - settingsDlgRect.bottom + settingsDlgRect.top, 0, 0, SWP_NOSIZE);
                 GetWindowRect(hwndDlg, &settingsDlgRect);
-                CreateToolTip(hwndDlg, IDC_COMBSCHEME, L"[+] to display combination keys like [Alt + Tab].");
+                CreateToolTip(hwndDlg, IDC_COMBSCHEME, L"[+] 来显示组合键 像是 [Alt + Tab].");
                 HWND hCtrl = GetDlgItem(hwndDlg, IDC_ALIGNMENT);
-                ComboBox_InsertString(hCtrl, 0, L"Left");
-                ComboBox_InsertString(hCtrl, 1, L"Right");
+                ComboBox_InsertString(hCtrl, 0, L"左");
+                ComboBox_InsertString(hCtrl, 1, L"右");
             }
             return TRUE;
         case WM_NOTIFY:
@@ -926,7 +926,7 @@ BOOL CALLBACK SettingsWndProc(HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lPar
                         tcKey = VkKeyScanEx(tmp[0], GetKeyboardLayout(0));
                         UnregisterHotKey(NULL, 1);
                         if (!RegisterHotKey( NULL, 1, tcModifiers | MOD_NOREPEAT, tcKey)) {
-                            MessageBox(NULL, L"Unable to register hotkey, you probably need go to settings to redefine your hotkey for toggle capturing.", L"Warning", MB_OK|MB_ICONWARNING);
+                            MessageBox(NULL, L"无法注册热键, 您可能需要进入设置以重新定义用于切换捕获的热键", L"警告", MB_OK|MB_ICONWARNING);
                         }
                     }
                     prepareLabels();
@@ -995,16 +995,16 @@ LRESULT CALLBACK WindowFunc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
                 nid.uFlags              = NIF_ICON | NIF_MESSAGE | NIF_TIP;
                 nid.uCallbackMessage    = WM_TRAYMSG;
                 nid.hIcon = LoadIcon( hInstance, MAKEINTRESOURCE(IDI_ICON1));
-                lstrcpy( nid.szTip, L"KeyCast On Windows by brook hong" );
+                lstrcpy( nid.szTip, L"KeyCast On Windows" );
                 Shell_NotifyIcon( NIM_ADD, &nid );
 
                 hPopMenu = CreatePopupMenu();
-                AppendMenu( hPopMenu, MF_STRING, MENU_CONFIG,  L"&Settings..." );
-                AppendMenu( hPopMenu, MF_STRING, MENU_RESTORE,  L"&Restore default settings" );
+                AppendMenu( hPopMenu, MF_STRING, MENU_CONFIG,  L"&设置..." );
+                AppendMenu( hPopMenu, MF_STRING, MENU_RESTORE,  L"&恢复默认设置" );
 #ifdef _DEBUG
-                AppendMenu( hPopMenu, MF_STRING, MENU_REPLAY,  L"Re&play" );
+                AppendMenu( hPopMenu, MF_STRING, MENU_REPLAY,  L"重放" );
 #endif
-                AppendMenu( hPopMenu, MF_STRING, MENU_EXIT,    L"E&xit" );
+                AppendMenu( hPopMenu, MF_STRING, MENU_EXIT,    L"退出" );
                 SetMenuDefaultItem( hPopMenu, MENU_CONFIG, FALSE );
             }
             break;
@@ -1049,7 +1049,7 @@ LRESULT CALLBACK WindowFunc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
                         {
                             if(replayStatus == 1) {
                                 replayStatus = 2;
-                                ModifyMenu( hPopMenu, MENU_REPLAY, MF_STRING, MENU_REPLAY, L"Re&play");
+                                ModifyMenu( hPopMenu, MENU_REPLAY, MF_STRING, MENU_REPLAY, L"重放");
                             } else {
                                 OPENFILENAME ofn;
                                 ZeroMemory(&ofn, sizeof(OPENFILENAME));
@@ -1062,7 +1062,7 @@ LRESULT CALLBACK WindowFunc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
                                 if(GetOpenFileName(&ofn)) {
                                     unsigned long id = 1;
                                     CreateThread(NULL,0,replay,recordFN,0,&id);
-                                    ModifyMenu( hPopMenu, MENU_REPLAY, MF_STRING, MENU_REPLAY, L"Stop re&play");
+                                    ModifyMenu( hPopMenu, MENU_REPLAY, MF_STRING, MENU_REPLAY, L"停止重放");
                                 }
                             }
                         }
@@ -1156,16 +1156,16 @@ void CreateMiniDump( LPEXCEPTION_POINTERS lpExceptionInfo) {
             hFile, mdt, ( lpExceptionInfo != 0 ) ? &mdei : 0, 0, 0);
 
         if ( !retv ) {
-            printf( ("MiniDumpWriteDump failed. Error: %u \n"), GetLastError() );
+            printf( ("MiniDumpWriteDump 失败. 错误: %u \n"), GetLastError() );
         } else {
-            printf( ("Minidump created.\n") );
+            printf( ("Minidump 已创建.\n") );
         }
 
         // Close the file
         CloseHandle( hFile );
 
     } else {
-        printf( ("CreateFile failed. Error: %u \n"), GetLastError() );
+        printf( ("CreateFile 失败. 错误: %u \n"), GetLastError() );
     }
 }
 
@@ -1208,7 +1208,7 @@ int WINAPI WinMain(HINSTANCE hThisInst, HINSTANCE hPrevInst,
     GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
 
     if(!MyRegisterClassEx(hThisInst, szWinName, WindowFunc)) {
-        MessageBox(NULL, L"Could not register window class", L"Error", MB_OK);
+        MessageBox(NULL, L"无法注册窗口类", L"错误", MB_OK);
         return 0;
     }
 
@@ -1225,7 +1225,7 @@ int WINAPI WinMain(HINSTANCE hThisInst, HINSTANCE hPrevInst,
             NULL
             );
     if( !hMainWnd)    {
-        MessageBox(NULL, L"Could not create window", L"Error", MB_OK);
+        MessageBox(NULL, L"无法创建窗口", L"错误", MB_OK);
         return 0;
     }
 
@@ -1240,7 +1240,7 @@ int WINAPI WinMain(HINSTANCE hThisInst, HINSTANCE hPrevInst,
             NULL, NULL, hThisInst, NULL);
 
     if (!RegisterHotKey( NULL, 1, tcModifiers | MOD_NOREPEAT, tcKey)) {
-        MessageBox(NULL, L"Unable to register hotkey, you probably need go to settings to redefine your hotkey for toggle capturing.", L"Warning", MB_OK|MB_ICONWARNING);
+        MessageBox(NULL, L"无法注册热键, 您可能需要进入设置以重新定义用于切换捕获的热键", L"警告", MB_OK|MB_ICONWARNING);
     }
     UpdateWindow(hMainWnd);
 
@@ -1265,13 +1265,13 @@ int WINAPI WinMain(HINSTANCE hThisInst, HINSTANCE hPrevInst,
     while( GetMessage(&msg, NULL, 0, 0) )    {
         if (msg.message == WM_HOTKEY) {
             if(kbdhook) {
-                showText(L"\u263b - KeyCastOW OFF", 1);
+                showText(L"\u263b - KeyCastOW 关", 1);
                 UnhookWindowsHookEx(kbdhook);
                 kbdhook = NULL;
                 UnhookWindowsHookEx(moshook);
                 moshook = NULL;
             } else {
-                showText(L"\u263b - KeyCastOW ON", 1);
+                showText(L"\u263b - KeyCastOW 开", 1);
                 kbdhook = SetWindowsHookEx(WH_KEYBOARD_LL, LLKeyboardProc, hInstance, NULL);
                 moshook = SetWindowsHookEx(WH_MOUSE_LL, LLMouseProc, hThisInst, 0);
             }
